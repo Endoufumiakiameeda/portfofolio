@@ -1,0 +1,60 @@
+//文字列にカンマを追加
+function addComma(val) {
+    return val.replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1,')
+}
+
+//文字列からカンマを除去
+function deleteComma(val) {
+    return val.replace(/,/g, '');
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input').forEach((el) => {
+        /*****  フォームがフォーカスされた時にカンマを除去 *****/
+        el.addEventListener('focus', (e) => {
+            const val = e.target.value;
+            e.target.value = deleteComma(val);
+        });
+
+        /*****  フォームからフォーカスが外れた時にカンマを表示 *****/
+        el.addEventListener('blur', (e) => {
+            const val = e.target.value;
+            e.target.value = addComma(val);
+        });
+
+        /*****  フォーム入力中にEnterキー押下による送信を無効にする *****/
+        el.addEventListener('keydown', (e) => {
+            if (e.key == 'Enter') {
+                e.preventDefault();
+            }
+        });
+
+        /*****  フォームに入力された数値を集計し、表示する *****/
+        el.addEventListener('change', (e) => {
+            //値が入力された入力フォームのクラス名を取得
+            const liName = e.target.className.split(" ")[0];
+            //クラス名から数字だけを取り出す
+            const liNumber = liName.replace(/[^0-9]/g, '');
+
+            //数値以外が入力されたら、入力フォームを初期化する
+            // if(isNaN(e.target.value)){
+            //     e.target.value=""
+            // } 
+            const coName = e.target.className.split(" ")[1];
+            //列の値を合計
+            let coTotal = 0;
+            document.querySelectorAll('.' + coName).forEach((input) => {
+                if (input.value == "") {
+                    return;
+                }
+                coTotal += parseFloat(deleteComma(input.value));
+            });
+            //クラス名から数字だけを取り出す
+            const coNumber = coName.replace(/[^0-9]/g, '');
+            //合計欄に合計を表示
+            document.querySelector('.co-total' + coNumber).value = addComma(String(coTotal));
+
+        });
+    });
+}); 
