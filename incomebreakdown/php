@@ -1,0 +1,70 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">{{ __('個人申告内容入力（収入内訳表）') }}</div>
+
+                <div class="card-body">
+
+                    <div class="profit-and-loss">
+                        <table class="table table-bordered" id="tbl">
+                            <thead class="text-center bg-secondary">
+                                <tr>
+                                    <th scope="col" class="invisible"></th>
+                                    <th scope="col">所得の種類</th>
+                                    <th>種目</th>
+                                    <th scope="col">支払者の住所/氏名/電話</th>
+                                    <th scope="col">売上金額</th>
+                                    <th scope="col">支払済源泉<br>徴収額</th>
+                                    <th scope="col">書類</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="text-danger">
+                                    <th scope="row" class="bg-danger text-white">見本</th>
+                                    <td>営業等</td>
+                                    <td>営業業務委託料</td>
+                                    <td>東京都港区虎ノ門4-3-1 5F<br>株式会社第一商事 〇〇店 TEL03-5555-5555</td>
+                                    <td>5,000,000</td>
+                                    <td>510,500</td>
+                                    <td>支払調書</td>
+                                </tr>
+
+                                @for($i =1; $i <= 5;$i++) <tr>
+                                    <th scope="row"><input class="No{{ $i }} column0 form-control" name="number{{ $i }}" size="4"></th>
+                                    <td><input class="No{{ $i }} column1 form-control" name="incomeWay{{ $i }}"></td>
+                                    <td><input class="No{{ $i }} column2 form-control" name="bussiness{{ $i }}"></td>
+                                    <td><input class="No{{ $i }} column3 form-control" name="adress{{ $i }}"></td>
+                                    <td><input class="No{{ $i }} column4 form-control" name="sellPrice{{ $i }}" id="ab"></td>
+                                    <td><input class="No{{ $i }} column5 form-control" name="tax{{ $i }}"></td>
+                                    <td><input class="No{{ $i }} column6 form-control" name="file{{ $i }}" size="30"></td>
+                                    </tr>
+                                @endfor
+
+                                    <tr>
+                                        <th class="invisible" scope="row"></th>
+                                        <td class="text-center bg-secondary" colspan="3">合計</td>
+                                        @for($i =4; $i <= 5;$i++) <td><input class="co-total{{ $i }}" name="co-total{{ $i }}" value="" readonly></td>
+                                            @endfor
+                                            <td></td>
+                                    </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="button">
+                            <button type="submit" class="btn btn-primary mx-auto d-block">次へ</button>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="{{ asset('js/incomebreakdown.js') }}"></script>
+@endsection
