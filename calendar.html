@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+
+  <div id="app">
+    <h1>カレンダー</h1>
+    <div id="menu">
+      <!-- 月メニュータグの作成 -->
+      <month-menu
+        v-for="date in dates"
+        :year="date.year"
+        :month="date.month"
+        @clicked-display-button="getCalendar">
+      </month-menu>
+    </div>
+    <br>
+    <!--カレンダーの描画 -->
+    <table border="1">
+      <tr>
+        <!--headerに曜日の描画 -->
+        <th v-for="header in headers">{{ header }}</th>
+      </tr>
+      <tr v-for="oneweek in dateObjects">
+        <!-- 日付の描画 -->
+        <td v-for="date in oneweek">{{ date | addDate }}</td>
+      </tr>
+    </table>
+  </div>
+  
+  <script>
+    Vue.filter('addYear', function(value) {
+      if(value != "") {
+        // valueに「年」を追記する
+        value = value + "年";
+      }
+      return value;
+    })
+    
+    Vue.filter('addMonth', function(value) {
+      if(value != "") {
+        value = value + "月";
+      }
+      return value;
+    })
+    
+    Vue.filter('addDate', function(value) {
+      if(value != "") {
+        value = value + "日";
+      }
+      return value;
+    })
+    
+    Vue.component('month-menu', {
+      // 親コンポーネントから子コンポーネントに値を渡す
+      props: ['year', 'month'],
+      // 受け取ったデータを代入する
+      template: `
+        <button @click="display(year,month)">
+          {{ year | addYear }}{{ month | addMonth }}
+        </button>`,
+      methods: {
+        display: function(year, month) {
+          this.$emit('clicked-display-button', year, month);
+        }
+      }
+    })
+    
+    new Vue({
+      el: "#app",
+      data: {
+        dates: [
+          {year: 2020, month: 1},
+          {year: 2020, month: 2},
+          {year: 2020, month: 3},
+          {year: 2020, month: 4},
+          {year: 2020, month: 5},
+          {year: 2020, month: 6},
+          {year: 2020, month: 7},
+          {year: 2020, month: 8},
+          {year: 2020, month: 9},
+          {year: 2020, month: 10},
+          {year: 2020, month: 11},
+          {year: 2020, month: 12}
+        ],
+        // dateObjectsに空の配列を定義
+        dateObjects: [],
+        // headersに曜日の要素を記述
+        headers: ["日","月","火","水","木","金","土"]
+      },
+      methods: {
+        getCalendar: function(year, month) {
+          // 翌月の0日で生成し、当月末日のDateオブジェクトを取得
+          const lastDate = new Date(Number(year),Number(month),0)
+          //曜日を取得するためのDateオブジェクト
+          const checkDay = new Date(lastDate)
+          this.dateObjects = [];
+          let oneweek = [];
+          // 曜日を描画するコードを記述
+          for(let i = 0; i < lastDate.getDate(); i++) {
+            checkDay.setDate(i + 1);
+            // 日曜日が描画される場合を記述してください
+            if(i === 0) {
+              for(let j = 0; j < checkDay.getDay(); j++) {
+                // 1日が日曜日でない場合、空欄を描画
+                oneweek.push("");
+              }
+            }
+            // 土曜日まで描画されたとき、下段に表を追記
+            oneweek.push(i + 1);
+            if(checkDay.getDay() === 6) {
+              this.dateObjects.push(oneweek);
+              oneweek = [];
+            }
+          }
+          // 土曜日でない場合、日付をそのまま描画
+          if(checkDay.getDay != 6) {
+            this.dateObjects.push(oneweek);
+          }
+        }
+      }
+    })
+  </script>
+  
+  <style>
+    td { height: 100px; }
+    table { 
+      width: 500px;
+      border-collapse: collapse;
+      margin: auto;
+      margin-top: 20px;
+    }
+    button {
+      margin-right: 1px;
+    }
+    #menu {
+      text-align:center;
+    }
+    h1 {
+      text-align:center;
+    }
+  </style> 
+</body>
+</html>
