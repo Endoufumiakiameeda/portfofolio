@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>apiQiita</title>
+
+    <!-- Scripts -->
+    <script src="{{ asset('js/app.js') }}"></script>
+
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+
+    <!-- Styles -->
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+</head>
+<body>
+    <ul id="js_append_area">
+    </ul>
+    <button id="next" href="#">次の20件を表示</button>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+$(function() {
+    var no = 1
+    // キャッシュを無効にする
+    $.ajaxSetup({
+        cache: false
+    });
+    // 記事をとってきて表示
+    var getArticle = function(){
+        $.get('http://qiita.com/api/v2/items?',
+                { page:no, per_page:"20" }
+            ).then(function(data) {
+                $.each(data, function(i, v){
+                    // aタグオブジェクトをつくってhrefにv.urlをセット
+                    // v.titleをテキスト形式で表示
+                    var a = $("<a>").attr("href", v.url).text(v.title);
+                    // liタグオブジェクトをつくって先程作ったaをappend
+                    // それを#js_append_areaに追加
+                    $("#js_append_area").append($("<li>").append(a));
+                })
+            });
+    }
+    // 最初の20件を初期表示
+    getArticle();
+    // ボタンを押すごとに次の20件を表示
+    $("#next").click(function () {
+        no++;
+        getArticle();
+    });
+});
+</script>
+</body>
+</html>
