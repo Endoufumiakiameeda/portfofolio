@@ -1,0 +1,54 @@
+//シートを取得する。
+var sheet = SpreadsheetApp.getActiveSheet();
+
+function getMail() {
+  var threads = GmailApp.search('subject:たのめーる');
+  // メール検索する文字列：今回はタイトルにたのめーると入っているもの
+  var str = "subject:たのめーる";
+
+  // 上記の文字列に合致するスレッドを取得(とりあえず100件取得します)
+  var threads = GmailApp.search(str,0,100);
+
+  // メッセージを取得する
+  var messages = GmailApp.getMessagesForThreads(threads);
+
+  for(var i = 0; i < messages.length; i++){
+    for(var j = 0; j < messages[i].length; j++){
+
+      //メッセージIDを取得(重複を防ぐため)
+      var messageId = messages[i][j].getId();
+
+      //もし、スプレッドシートに存在したら実行しない
+      if(!hasId(messageId)){
+       //メール受信日時を取得
+      　//var mailDate = messages[i][j].getDate();
+
+       // メッセージの本文をプレーンテキストで取得＋取得出来てるかをlooger.log確認
+       var body = messages[i][j].getPlainBody();
+       Logger.log(body);
+
+
+
+       //正規表現をマッチさせ変数に格納
+        var No = /お問い合わせ番号*：(.*?)\r\n/.test(body)? RegExp.$1 : '';
+        var Time = /ご注文日時*：(.*?)\r\n/.test(body)? RegExp.$1 : '';
+        var Part = /購入部署*：(.*?)\r\n/.test(body)? "'"+RegExp.$1 : '';
+        var Money = /お支払い金額（税込）*：(.*?)\r\n/.test(body)? "'"+RegExp.$1 : '';
+        var Element = /商品名*：(.*?)\r\n/.test(body)? "'"+RegExp.$1 : '';
+       //セルに行を追加する(ID、日時問い合わせ番号、ご注文日時、購入部署、お支払金額)
+       sheet.appendRow([messageId,No,Time,Part,Money,Element]);
+       }
+     }
+  }      
+}
+
+// 同じIDのメールは転記しないようにするため、すでにIDがあるかどうか調べる関数
+function hasId(id){  
+   //今回は1列目にメールIDを入れていくので1列目から探す
+    var data = sheet.getRange(1, 1,sheet.getLastRow(),1).getValues();
+    var hasId = data.some(function(value,index,data){
+   //コールバック関数
+    return (value[0] === id);
+  });
+  return hasId;
+}
