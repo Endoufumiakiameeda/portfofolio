@@ -1,0 +1,64 @@
+function sendWeeklyLabEvents() {
+  function getTime(date){
+    return Utilities.formatDate(date, 'JST', 'HH:mm');
+  }
+  function getDayString(date){
+    return Utilities.formatDate(date, 'JST', 'YYYY/MM/dd (E)')
+  }
+  function getEachEventString(event){
+      const title = event.getTitle()
+      const dayString = getDayString(event.getStartTime());
+      const hourString = `${getTime(event.getStartTime())} ~ ${getTime(event.getEndTime())}`;
+      const description = `${event.getDescription()}`;
+      const body = `
+${dayString}  ${hourString}
+${title}
+${description}\n
+`
+      return body
+  }
+
+  const calenders = [
+    CalendarApp.getCalendarById('YourCalenderID'),
+  ]
+  const today = new Date();
+  const nextWeekDay = new Date();
+  nextWeekDay.setDate(nextWeekDay.getDate() + 7);
+
+  let all_events = []
+  for (const calendar of calenders){
+    const events = calendar.getEvents(today, nextWeekDay);
+    all_events = all_events.concat(events);
+  }
+  all_events.sort((a, b) => {
+    return a.getStartTime() - b.getStartTime()
+  });
+
+
+  const eventsBody = all_events.reduce((previous, event) => {
+    return previous + getEachEventString(event);
+  }, ``);
+
+  const emailBody = `
+研究室の皆様．
+
+お世話になっております．
+今週の予定について通知いたします．
+
+===============================================
+${eventsBody}
+===============================================
+
+このような予定になっております．
+ご確認のほどよろしくお願いいたします．
+
+  `;
+  const addresses = [
+    'メールアドレス',
+
+  ];
+
+  MailApp.sendEmail({
+    to: addresses.join(","),
+    subject: '今週の予定について（リマインド）'
+...
